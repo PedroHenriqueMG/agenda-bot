@@ -1,6 +1,7 @@
 # Folders
 /build
 /dist
+/data
 /discloud
 /deprecated
 /node_modules
