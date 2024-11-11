@@ -1,21 +1,22 @@
 import {
-	CacheType,
-	Client,
-	type ClientOptions,
-	version as djsVersion,
-	PermissionResolvable,
-} from "discord.js"
-import {
 	Command,
 	Event,
 	Responder,
 	ResponderType,
 	type ResponderInteraction,
 } from "#base"
-import { CustomItents, CustomPartials, spaceBuilder } from "@magicyan/discord"
 import { log, onError } from "#settings"
-import glob from "fast-glob"
+import { CustomItents, CustomPartials, spaceBuilder } from "@magicyan/discord"
 import ck from "chalk"
+import { db } from "db/db.js"
+import {
+	CacheType,
+	Client,
+	version as djsVersion,
+	PermissionResolvable,
+	type ClientOptions,
+} from "discord.js"
+import glob from "fast-glob"
 
 interface BootstrapAppOptions extends Partial<ClientOptions> {
 	/** Application entry point directory */
@@ -57,7 +58,15 @@ export async function bootstrapApp<O extends BootstrapAppOptions>(
 	const client = createClient(process.env.BOT_TOKEN, options)
 	await loadDirectories(options)
 
-	console.log()
+  db
+  .$connect()
+  .then(() => {
+    log.success(ck.greenBright("Conexão com o banco de dados estabelecida com sucesso."));
+  })
+  .catch((error: Error) => {
+    log.error(ck.red(`Erro ao conectar ao banco de dados: ${error.message}`));
+  });
+
 	log.success(
 		spaceBuilder(
 			"📦",
