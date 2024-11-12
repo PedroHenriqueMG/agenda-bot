@@ -22,6 +22,7 @@ new Responder({
                     data: {
                         name,
                         description,
+                        type: "monthly",
                         time: newDate
                     }
                 })

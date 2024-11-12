@@ -32,6 +32,7 @@ new Responder({
                     data: {
                         name,
                         description,
+                        type: "fixed",
                         time: newDate
                     }
                 })
