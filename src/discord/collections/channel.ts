@@ -1,3 +1,3 @@
 import {Collection} from "discord.js"
 
-export const channel: Collection<string, {id: string}> = new Collection()
+export const channelCollection: Collection<string, {id: string, userId: string}> = new Collection()
