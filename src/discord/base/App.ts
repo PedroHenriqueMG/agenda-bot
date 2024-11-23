@@ -65,6 +65,7 @@ export async function bootstrapApp<O extends BootstrapAppOptions>(
   })
   .catch((error: Error) => {
     log.error(ck.red(`Erro ao conectar ao banco de dados: ${error.message}`));
+	process.exit(1);
   });
 
 	log.success(
