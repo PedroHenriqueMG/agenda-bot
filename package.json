@@ -50,6 +50,9 @@
 		"#settings": [
 			"./build/settings/index.js"
 		],
+		"#collections": [
+			"./build/discord/collections/index.js"
+		],
 		"#tools": [
 			"./build/tools/index.js"
 		],

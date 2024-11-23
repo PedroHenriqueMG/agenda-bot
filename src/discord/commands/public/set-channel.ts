@@ -1,6 +1,6 @@
 import { Command } from "#base";
 import { ApplicationCommandType } from "discord.js";
-import { channelCollection } from "discord/collections/channel.js";
+import { channelCollection } from "#collections";
 
 new Command({
 	name: "set-channel",

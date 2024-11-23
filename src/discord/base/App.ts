@@ -8,7 +8,7 @@ import {
 import { log, onError } from "#settings"
 import { CustomItents, CustomPartials, spaceBuilder } from "@magicyan/discord"
 import ck from "chalk"
-import { db } from "db/db.js"
+import { db } from "#database"
 import {
 	CacheType,
 	Client,

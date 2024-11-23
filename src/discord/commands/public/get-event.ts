@@ -1,5 +1,5 @@
 import { Command } from "#base";
-import { db } from "db/db.js";
+import { db } from "#database";
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
 import moment from "moment";
 

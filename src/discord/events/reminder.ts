@@ -1,7 +1,7 @@
 import { Event } from "#base"
 import { createEmbed } from "@magicyan/discord"
-import { db } from "db/db.js"
-import { channelCollection } from "discord/collections/channel.js"
+import { db } from "#database"
+import { channelCollection } from "#collections"
 import cron from "node-cron"
 
 new Event({

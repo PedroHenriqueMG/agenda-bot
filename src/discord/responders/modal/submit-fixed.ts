@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { db } from "db/db.js";
+import { db } from "#database";
 import moment from "moment";
 
 new Responder({
