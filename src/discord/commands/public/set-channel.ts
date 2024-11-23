@@ -13,7 +13,7 @@ new Command({
             channelCollection.delete(process.env.CHANNEL_KEY)
         }
 
-        channelCollection.set(process.env.CHANNEL_KEY, {id: channelId, userId: user.id})
+        channelCollection.set(process.env.CHANNEL_KEY, {id: channelId, userId: user.id, username: user.username, userAvatar: user.avatarURL()})
 
         return interaction.reply({ content: "Canal seleconado com sucesso!", ephemeral: true });
 	},
