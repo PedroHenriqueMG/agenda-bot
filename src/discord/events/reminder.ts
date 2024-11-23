@@ -8,7 +8,7 @@ new Event({
 	name: "reminder",
 	event: "ready",
 	async run(client) {
-        cron.schedule("* * * * *", async () => {
+        cron.schedule("0 8 * * *", async () => {
             const now = new Date();
             const day = now.getDate().toString().padStart(2, "0");
            
