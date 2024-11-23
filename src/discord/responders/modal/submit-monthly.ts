@@ -14,8 +14,6 @@ new Responder({
             if (!date.isValid()) {
                 return interaction.reply({ content: "Data inválida. Use o formato DD/MM/YYYY.", ephemeral: true });
             }
-
-            const newDate = new Date(date.toISOString());
                 
             try{
                 await db.event.create({
@@ -23,7 +21,7 @@ new Responder({
                         name,
                         description,
                         type: "monthly",
-                        time: newDate
+                        time: date.toISOString()
                     }
                 })
                 return interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });

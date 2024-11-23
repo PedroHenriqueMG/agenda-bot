@@ -24,8 +24,7 @@ new Responder({
                 }
             }
     
-            const eventDateTime = time ? date.set({ hour: time.hours(), minute: time.minutes() }) : date;
-            const newDate = new Date(eventDateTime.toISOString());
+            const eventDateTime = date.set({ hour: time?.hours(), minute: time?.minutes() });
 
             try{
                 await db.event.create({
@@ -33,7 +32,7 @@ new Responder({
                         name,
                         description,
                         type: "fixed",
-                        time: newDate
+                        time: eventDateTime.toISOString()
                     }
                 })
                 return interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
