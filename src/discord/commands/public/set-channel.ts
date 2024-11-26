@@ -1,6 +1,8 @@
 import { Command } from "#base";
 import { ApplicationCommandType } from "discord.js";
 import { channelCollection } from "#collections";
+import { log } from "#settings"
+import ck from "chalk"
 
 new Command({
 	name: "set-channel",
@@ -15,6 +17,7 @@ new Command({
 
         channelCollection.set(process.env.CHANNEL_KEY, {id: channelId, userId: user.id, username: user.username, userAvatar: user.avatarURL()})
 
-        return interaction.reply({ content: "Canal seleconado com sucesso!", ephemeral: true });
+        interaction.reply({ content: "Canal seleconado com sucesso!", ephemeral: true });
+        return log.success(ck.green(`Canal ${channelId} selecionado com sucesso!`))
 	},
 })
