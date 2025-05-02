@@ -5,13 +5,11 @@
 	"scripts": {
 		"check": "tsc --noEmit && echo ✔ Ok",
 		"build": "tsc",
-		"dev": "tsx --env-file .env ./src/index.ts",
-		"dev:dev": "tsx --env-file .env.dev ./src/index.ts",
-		"watch": "tsx --watch --env-file .env ./src/index.ts",
+		"watch": "tsx --watch --env-file .env.prod ./src/index.ts",
 		"lint": "lint-staged",
 		"watch:dev": "tsx --watch --env-file .env.dev ./src/index.ts",
-		"start": "node --env-file .env ./build/index.js",
-		"start:dev": "node --env-file .env.dev ./build/index.js",
+		"start": "node --env-file .env.prod ./build/index.js",
+		"start:dev": "tsx --env-file .env.dev ./src/index.ts",
 		"prepare": "husky"
 	},
 	"dependencies": {
@@ -38,6 +36,9 @@
 		"#database": [
 			"./build/database/index.js"
 		],
+		"#db": [
+			"./build/db/db.js"	
+		],
 		"#base": [
 			"./build/discord/base/index.js"
 		],
@@ -50,11 +51,11 @@
 		"#settings": [
 			"./build/settings/index.js"
 		],
-		"#collections": [
-			"./build/discord/collections/index.js"
-		],
 		"#tools": [
 			"./build/tools/index.js"
+		],
+		"#collections": [
+			"./build/discord/collections/channel.js"
 		],
 		"#server": [
 			"./build/server/index.js"
