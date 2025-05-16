@@ -1,6 +1,8 @@
 import { Responder, ResponderType } from "#base";
-import { db } from "db/db.js";
+import { db } from "#database";
 import moment from "moment";
+import { log } from "#settings";
+import ck from "chalk";
 
 new Responder({
 	customId: "create-event-monthly",
@@ -12,10 +14,9 @@ new Responder({
 
             const date = moment(dateInput, "DD/MM/YYYY", true);
             if (!date.isValid()) {
-                return interaction.reply({ content: "Data inválida. Use o formato DD/MM/YYYY.", ephemeral: true });
+                interaction.reply({ content: "Data inválida. Use o formato DD/MM/YYYY.", ephemeral: true });
+                return log.error(ck.red(`Data inválida. Use o formato DD/MM/YYYY.`))
             }
-
-            const newDate = new Date(date.toISOString());
                 
             try{
                 await db.event.create({
@@ -23,13 +24,16 @@ new Responder({
                         name,
                         description,
                         type: "monthly",
-                        time: newDate
+                        time: date.toISOString()
                     }
                 })
-                return interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
+
+                interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
+                return log.success(ck.green(`Evento mensal: ${name} criado com sucesso!`))
 
             } catch(error){
-                return interaction.reply({ content: "Erro ao criar o evento.", ephemeral: true });
+                interaction.reply({ content: "Erro ao criar o evento.", ephemeral: true });
+                return log.error(ck.red(`Erro ao criar o evento: ${error}`))
             }    
 	},
 })

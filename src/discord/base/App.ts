@@ -8,7 +8,7 @@ import {
 import { log, onError } from "#settings"
 import { CustomItents, CustomPartials, spaceBuilder } from "@magicyan/discord"
 import ck from "chalk"
-import { db } from "db/db.js"
+import { db } from "#database"
 import {
 	CacheType,
 	Client,
@@ -65,6 +65,7 @@ export async function bootstrapApp<O extends BootstrapAppOptions>(
   })
   .catch((error: Error) => {
     log.error(ck.red(`Erro ao conectar ao banco de dados: ${error.message}`));
+	process.exit(1);
   });
 
 	log.success(

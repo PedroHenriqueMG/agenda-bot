@@ -12,5 +12,5 @@ model Event {
   name        String     @unique
   type        String
   description String
-  time        DateTime
+  time        String
 }
