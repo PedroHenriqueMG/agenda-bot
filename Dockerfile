@@ -8,4 +8,4 @@ COPY . .
 
 RUN npm install
 
-ENTRYPOINT ["sh", "-c", "npm run build && npm run start"]
+ENTRYPOINT ["sh", "-c", "npx prisma migrate deploy && npm run build && npm run start"]
