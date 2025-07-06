@@ -11,6 +11,7 @@ services:
       - ./data:/data/postgres
     ports:
       - "5432:5432"
+    restart: always
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
@@ -24,6 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
     depends_on:
       postgres:
         condition: service_healthy
