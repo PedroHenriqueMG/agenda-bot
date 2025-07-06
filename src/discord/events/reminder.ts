@@ -1,6 +1,6 @@
 import { Event } from "#base"
 import { createEmbed } from "@magicyan/discord"
-import { db } from "#database"
+import { googleCalendar } from "#base"
 import { log } from "#settings"
 import ck from "chalk"
 import { channelCollection } from "#collections"
@@ -10,82 +10,80 @@ new Event({
 	name: "reminder",
 	event: "ready",
 	async run(client) {
-        cron.schedule("0 8 * * *", async () => {
-            const now = new Date();
-            const day = now.getDate().toString().padStart(2, "0");
-           
-            const allEvents = await db.event.findMany().catch((error) => {
-                log.error(ck.red(`Erro ao buscar os eventos: ${error.message}`))
-                return []
-            })
-            const events = allEvents.filter(e => new Date(e.time).getDate().toString().padStart(2, "0") === day)
+		cron.schedule("0 8 * * *", async () => {
+			try {
+				if (!googleCalendar.isAuthenticated()) {
+					log.warn(ck.yellow("Google Calendar não configurado. Lembretes desabilitados."));
+					return;
+				}
 
-            if(!events.length) return log.info(ck.yellow(`Nenhum evento para hoje!`))
+				const events = await googleCalendar.getTodayEvents();
+                console.log(events);
 
-            const channelId = channelCollection.get(process.env.CHANNEL_KEY)?.id
+				if (events.length === 0) {
+					return log.info(ck.yellow(`Nenhum evento para hoje!`));
+				}
 
-            for(const event of events) {
-                if(channelId){
-                    const channel = client.channels.cache.get(channelId)
-        
-                    if(channel?.isTextBased && channel.type === 0) {
-                        if(event.type === "fixed") {
-                            const embed = createEmbed({
-                                title: "Você tem um evento para hoje!",
-                                author: {
-                                    name: `${channelCollection.get(process.env.CHANNEL_KEY)?.username}`,
-                                    iconURL: `${channelCollection.get(process.env.CHANNEL_KEY)?.userAvatar}`
-                                },
-                                color: "Red",
-                                fields: [
-                                    {
-                                        name: "Nome do evento",
-                                        value: event.name
-                                    },
-                                    {
-                                        name: "Descrição",
-                                        value: event.description
-                                    },
-                                ],
-                                timestamp: new Date(event.time)
-                            })
+				const channelId = channelCollection.get(process.env.CHANNEL_KEY)?.id;
 
-                           channel?.send({ embeds: [embed] })
-                           await db.event.delete({ where: { id: event.id } })
-                           return log.success(ck.green(`Mensagem enviada com sucesso! \n evento: ${event.name}`))
-                        }
-                        
-                        
-                        if(event.type === "monthly") {
-                            const embed = createEmbed({
-                                title: "Evento mensal de hoje!",
-                                author: {
-                                    name: `${channelCollection.get(process.env.CHANNEL_KEY)?.username}`,
-                                    iconURL: `${channelCollection.get(process.env.CHANNEL_KEY)?.userAvatar}`
-                                },
-                                color: "Red",
-                                fields: [
-                                    {
-                                        name: "Nome do evento",
-                                        value: event.name
-                                    },
-                                    {
-                                        name: "Descrição",
-                                        value: event.description
-                                    },
-                                ],
-                            })
-                            
-                            channel?.send({ embeds: [embed] })
-                        }
+				if (!channelId) {
+					log.error(ck.red(`Canal de alertas não selecionado.`));
+					return;
+				}
 
-                        channel?.send(`<@${channelCollection.get(process.env.CHANNEL_KEY)?.userId}>`)
-                        return log.success(ck.green(`Mensagem enviada com sucesso! \n evento: ${event.name}`))
-                    }
-                    
-                }
-                log.error(ck.red(`Canal de alertas nao selecionado.`))
-            }
-        })
+				const channel = client.channels.cache.get(channelId);
+
+				if (!channel?.isTextBased || channel.type !== 0) {
+					log.error(ck.red(`Canal inválido para envio de mensagens.`));
+					return;
+				}
+
+				for (const event of events) {
+					const eventType = event.extendedProperties?.private?.eventType || 'evento';
+					const startTime = event.start?.dateTime ? new Date(event.start.dateTime) : new Date(event.start?.date || '');
+					const endTime = event.end?.dateTime ? new Date(event.end.dateTime) : new Date(event.end?.date || '');
+
+					const embed = createEmbed({
+						title: eventType === 'monthly' ? "🔄 Evento mensal de hoje!" : "�� Você tem um evento para hoje!",
+						author: {
+							name: `${channelCollection.get(process.env.CHANNEL_KEY)?.username}`,
+							iconURL: `${channelCollection.get(process.env.CHANNEL_KEY)?.userAvatar}`
+						},
+						color: "Red",
+						fields: [
+							{
+								name: "Nome do evento",
+								value: event.summary || 'Sem título'
+							},
+							{
+								name: "Descrição",
+								value: event.description || 'Sem descrição'
+							},
+							{
+								name: "Horário",
+								value: `${startTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${endTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+							}
+						],
+						timestamp: startTime
+					});
+
+					await channel.send({ embeds: [embed] });
+					await channel.send(`<@${channelCollection.get(process.env.CHANNEL_KEY)?.userId}>`);
+
+					if (eventType === 'fixed' && event.id) {
+						try {
+							await googleCalendar.deleteEvent(event.id);
+							log.success(ck.green(`Evento fixo deletado do Google Agenda: ${event.summary}`));
+						} catch (error) {
+							log.warn(ck.yellow(`Erro ao deletar evento do Google Agenda: ${error}`));
+						}
+					}
+
+					log.success(ck.green(`Lembrete enviado com sucesso! Evento: ${event.summary}`));
+				}
+			} catch (error) {
+				log.error(ck.red(`Erro no sistema de lembretes: ${error}`));
+			}
+		});
 	},
 })

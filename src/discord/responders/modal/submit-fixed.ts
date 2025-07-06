@@ -1,8 +1,8 @@
 import { Responder, ResponderType } from "#base";
-import { db } from "#database";
 import moment from "moment";
 import { log } from "#settings";
 import ck from "chalk";
+import { googleCalendar } from "#base";
 
 new Responder({
 	customId: "create-event-fixed",
@@ -31,17 +31,16 @@ new Responder({
             const eventDateTime = date.set({ hour: time?.hours(), minute: time?.minutes() });
 
             try{
-                await db.event.create({
-                    data: {
-                        name,
-                        description,
-                        type: "fixed",
-                        time: eventDateTime.toISOString()
-                    }
-                })
+                const event = await googleCalendar.createEvent({
+                    name,
+                    description,
+                    startTime: eventDateTime.toDate(),
+                    endTime: eventDateTime.toDate(),
+                    type: "fixed",
+                });
 
-                interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
-                return log.success(ck.green(`Evento fixo: ${name} criado com sucesso!`))
+                interaction.reply({ content: `Evento criado!\n**Nome:** ${event}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
+                return log.success(ck.green(`Evento fixo: ${event} criado com sucesso!`))
             } catch (error) {
                 interaction.reply({ content: "Erro ao criar evento.", ephemeral: true });
                 return log.error(ck.red(`Erro ao criar evento: ${error}`))

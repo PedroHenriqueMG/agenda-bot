@@ -26,7 +26,7 @@
 		// Path mapping Options
 		"baseUrl": "./src",
 		"paths": {
-			"#database": ["./database/index.ts"],
+			"#service": ["./service/index.ts"],
 			"#base": ["./discord/base/index.ts"],
 			"#collections": ["./discord/collections/index.ts"],
 			"#functions": ["./functions/index.ts"],
