@@ -1,8 +1,8 @@
 import { Responder, ResponderType } from "#base";
-import { db } from "#database";
 import moment from "moment";
 import { log } from "#settings";
 import ck from "chalk";
+import { googleCalendar } from "#base";
 
 new Responder({
 	customId: "create-event-monthly",
@@ -19,17 +19,16 @@ new Responder({
             }
                 
             try{
-                await db.event.create({
-                    data: {
-                        name,
-                        description,
-                        type: "monthly",
-                        time: date.toISOString()
-                    }
-                })
+                const event = await googleCalendar.createEvent({
+                    name,
+                    description,
+                    startTime: date.toDate(),
+                    endTime: date.toDate(),
+                    type: "monthly",
+                });
 
-                interaction.reply({ content: `Evento criado!\n**Nome:** ${name}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
-                return log.success(ck.green(`Evento mensal: ${name} criado com sucesso!`))
+                interaction.reply({ content: `Evento criado!\n**Nome:** ${event}\n**Data e Hora:** ${date.format("DD/MM/YYYY [às] HH:mm")}\n**Descrição:** ${description}`, ephemeral: true });
+                return log.success(ck.green(`Evento mensal: ${event} criado com sucesso!`))
 
             } catch(error){
                 interaction.reply({ content: "Erro ao criar o evento.", ephemeral: true });

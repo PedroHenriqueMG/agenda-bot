@@ -8,7 +8,6 @@ import {
 import { log, onError } from "#settings"
 import { CustomItents, CustomPartials, spaceBuilder } from "@magicyan/discord"
 import ck from "chalk"
-import { db } from "#database"
 import {
 	CacheType,
 	Client,
@@ -17,6 +16,9 @@ import {
 	type ClientOptions,
 } from "discord.js"
 import glob from "fast-glob"
+import { GoogleCalendarService } from "#service"
+
+export const googleCalendar = new GoogleCalendarService();
 
 interface BootstrapAppOptions extends Partial<ClientOptions> {
 	/** Application entry point directory */
@@ -47,6 +49,7 @@ interface BootstrapAppOptions extends Partial<ClientOptions> {
 	/** Run when client is ready */
 	whenReady?(client: Client<true>): void
 }
+
 export async function bootstrapApp<O extends BootstrapAppOptions>(
 	options: O
 ): Promise<Client> {
@@ -58,15 +61,16 @@ export async function bootstrapApp<O extends BootstrapAppOptions>(
 	const client = createClient(process.env.BOT_TOKEN, options)
 	await loadDirectories(options)
 
-  db
-  .$connect()
-  .then(() => {
-    log.success(ck.greenBright("Conexão com o banco de dados estabelecida com sucesso."));
-  })
-  .catch((error: Error) => {
-    log.error(ck.red(`Erro ao conectar ao banco de dados: ${error.message}`));
-	process.exit(1);
-  });
+	try {
+		const isInitialized = await googleCalendar.initialize();
+		if (isInitialized) {
+			log.success(ck.greenBright("Google Calendar inicializado com sucesso."));
+		} else {
+			log.warn(ck.yellow("Google Calendar não configurado. Use /setup-google-calendar para configurar."));
+		}
+	} catch (error) {
+		log.error(ck.red(`Erro ao inicializar Google Calendar: ${error}`));
+	}
 
 	log.success(
 		spaceBuilder(
